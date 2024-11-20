@@ -1,94 +1,121 @@
-let scheduleData = []; // Array to store schedule data (from schedule.csv)
-let roomData = [];     // Array to store room data (from data.csv)
+document.addEventListener('DOMContentLoaded', function() {
+    const scheduleFileInput = document.getElementById('scheduleFile');
+    const roomFileInput = document.getElementById('roomFile');
+    const findScheduleBtn = document.getElementById('findScheduleBtn');
+    const scheduleTable = document.getElementById('scheduleTable');
+    const scheduleBody = document.getElementById('scheduleBody');
+    
+    let scheduleData = [];
+    let roomData = [];
 
-// Function to read and parse CSV files
-function readCSV(file, callback) {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const text = event.target.result;
-        const lines = text.split('\n');
-        const data = [];
-        lines.forEach(line => {
-            const cells = line.split(',');
-            data.push(cells.map(cell => cell.trim()));
-        });
-        callback(data);
-    };
-    reader.readAsText(file);
-}
+    // Function to read CSV files and parse data
+    function readCSV(file, callback) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const text = event.target.result;
+            const rows = text.split('\n').map(row => row.split(','));
+            callback(rows);
+        };
+        reader.readAsText(file);
+    }
 
-// Function to process schedule data
-function processScheduleData(data) {
-    scheduleData = data.slice(1).map(row => {
-        return {
+    // Parse schedule data
+    function processScheduleData(rows) {
+        scheduleData = rows.slice(1).map(row => ({
             date: row[0],
             day: row[1],
             subject: row[2],
-            time: row[3],
-        };
-    });
-}
+            time: row[3]
+        }));
+    }
 
-// Function to process room assignment data
-function processRoomData(data) {
-    roomData = data.slice(1).map(row => {
-        return {
-            rollRange: row[1],
-            room: row[2],
-        };
-    });
-}
+    // Parse room data
+    function processRoomData(rows) {
+        roomData = rows.slice(1).map(row => ({
+            rollNoRange: row[1],
+            room: row[2]
+        }));
+    }
 
-// Function to find the room based on the roll number
-function findRoom(rollNumber) {
-    for (const entry of roomData) {
-        const [startRoll, endRoll] = entry.rollRange.split('-').map(Number);
-        if (rollNumber >= startRoll && rollNumber <= endRoll) {
-            return entry.room;
+    // Function to find schedule for a given roll number
+    function findSchedule(rollNo) {
+        const results = [];
+        
+        // Loop through the schedule data to match roll numbers
+        scheduleData.forEach((schedule, index) => {
+            const [startRoll, endRoll] = schedule.subject.split("-").map(num => parseInt(num.trim(), 10));
+            if (rollNo >= startRoll && rollNo <= endRoll) {
+                const room = getRoomForRollNo(rollNo);
+                results.push({
+                    number: index + 1,
+                    day: schedule.day,
+                    date: schedule.date,
+                    subject: schedule.subject,
+                    room: room,
+                    time: schedule.time
+                });
+            }
+        });
+
+        return results;
+    }
+
+    // Function to get room based on roll number
+    function getRoomForRollNo(rollNo) {
+        for (const room of roomData) {
+            const [startRoll, endRoll] = room.rollNoRange.split("-").map(num => parseInt(num.trim(), 10));
+            if (rollNo >= startRoll && rollNo <= endRoll) {
+                return room.room;
+            }
         }
-    }
-    return "Room Not Found"; // Return a default if not found
-}
-
-// Function to generate the exam schedule based on the user's roll number
-function generateSchedule() {
-    const rollNo = parseInt(document.getElementById("rollNoInput").value);
-    if (isNaN(rollNo)) {
-        alert("Please enter a valid roll number.");
-        return;
+        return "Not Found";
     }
 
-    // Find the user's room
-    const room = findRoom(rollNo);
-    
-    // Generate the schedule table
-    const tableBody = document.getElementById("scheduleTable").getElementsByTagName('tbody')[0];
-    tableBody.innerHTML = ""; // Clear previous results
+    // Handle "Find Schedule" button click
+    findScheduleBtn.addEventListener('click', function() {
+        const rollNo = parseInt(prompt("Enter your roll number:"), 10);
+        if (isNaN(rollNo)) {
+            alert("Please enter a valid roll number");
+            return;
+        }
 
-    scheduleData.forEach((entry, index) => {
-        const row = tableBody.insertRow();
+        // Filter schedule based on roll number
+        const results = findSchedule(rollNo);
 
-        // Insert the data into the row
-        row.insertCell(0).innerText = index + 1;
-        row.insertCell(1).innerText = entry.day;
-        row.insertCell(2).innerText = entry.date;
-        row.insertCell(3).innerText = entry.subject;
-        row.insertCell(4).innerText = room;
-        row.insertCell(5).innerText = entry.time;
+        // Display results in the table
+        if (results.length > 0) {
+            scheduleTable.style.display = "table";
+            scheduleBody.innerHTML = ""; // Clear existing rows
+
+            results.forEach(result => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${result.number}</td>
+                    <td>${result.day}</td>
+                    <td>${result.date}</td>
+                    <td>${result.subject}</td>
+                    <td>${result.room}</td>
+                    <td>${result.time}</td>
+                `;
+                scheduleBody.appendChild(row);
+            });
+        } else {
+            alert("No exams found for your roll number.");
+        }
     });
-}
 
-// Event listeners to handle file uploads
-document.getElementById("scheduleFile").addEventListener("change", function(event) {
-    const file = event.target.files[0];
-    if (file) {
-        readCSV(file, processScheduleData);
-    }
-});
+    // Listen for file uploads
+    scheduleFileInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            readCSV(file, processScheduleData);
+        }
+    });
 
-document.getElementById("roomFile").addEventListener("change", function(event) {
-    const file = event.target.files[0];
-    if (file) {
-        readCSV(file, processRoomData);
-    }
+    roomFileInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            readCSV(file, processRoomData);
+        }
+    });
 });
