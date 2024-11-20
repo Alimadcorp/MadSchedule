@@ -9,12 +9,22 @@
 <body>
     <h1>Find Your Exam Schedule</h1>
 
+    <!-- File Inputs -->
+    <div class="input-container">
+        <label for="scheduleFile">Upload Schedule File (schedule.csv):</label>
+        <input type="file" id="scheduleFile" accept=".csv">
+        <label for="roomFile">Upload Room Assignment File (data.csv):</label>
+        <input type="file" id="roomFile" accept=".csv">
+    </div>
+
+    <!-- Roll Number Input -->
     <div class="input-container">
         <label for="rollNoInput">Enter Your Roll Number:</label>
         <input type="number" id="rollNoInput" placeholder="e.g., 3686">
         <button onclick="generateSchedule()">Get Schedule</button>
     </div>
 
+    <!-- Table to Display Schedule -->
     <table id="scheduleTable">
         <thead>
             <tr>
@@ -27,6 +37,7 @@
             </tr>
         </thead>
         <tbody>
+            <!-- Schedule will be populated here -->
         </tbody>
     </table>
 
