@@ -1,99 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Exam Schedule Finder</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        #uploadSection {
-            margin: 20px 0;
-        }
-
-        input[type="file"] {
-            padding: 10px;
-            font-size: 1rem;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-            margin-top: 40px;
-        }
-
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #007BFF;
-            color: white;
-        }
-
-        td {
-            background-color: #f9f9f9;
-        }
-
-    </style>
-</head>
-<body>
-
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
     <h1>Find Your Exam Schedule</h1>
-    <div id="uploadSection">
-        <label for="scheduleFile">Upload Schedule (CSV):</label><br>
-        <input type="file" id="scheduleFile" accept=".csv"><br><br>
-        <label for="roomFile">Upload Room Data (CSV):</label><br>
-        <input type="file" id="roomFile" accept=".csv"><br><br>
-        <button id="findScheduleBtn">Find Schedule</button>
+
+    <div class="input-container">
+      <label for="rollNoInput">Enter Your Complete Roll Number:</label>
+      <input id="rollNoInput" placeholder="e.g., 3686-1-24" />
+      <button onclick="generateSchedule()">Get Schedule</button>
     </div>
+    <input type="checkbox" id="extra" />
+    <label for="extra">Show Extra Subjects</label>
 
-    <table id="scheduleTable" style="display:none;">
-        <thead>
-            <tr>
-                <th>Number</th>
-                <th>Day</th>
-                <th>Date</th>
-                <th>Subject</th>
-                <th>Room</th>
-                <th>Time</th>
-            </tr>
-        </thead>
-        <tbody id="scheduleBody">
-            <!-- Schedule rows will be populated here -->
-        </tbody>
+    <p id="errorMessage" style="font-weight: bold; color: red;"></p>
+
+    <table id="scheduleTable" style="display: none;">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Day</th>
+          <th>Date</th>
+          <th>Subject</th>
+          <th>Room</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
     </table>
-
+    <footer style="position: fixed; bottom: 0; width: 100%; text-align: center; padding: 10px; background-color: #f1f1f1;">
+        <p>Made by <strong>Muhammad Ali</strong>. Data is currently incomplete and unverified.</p>
+    </footer>
+    <script src="fetch.js"></script>
     <script src="script.js"></script>
-</body>
+    <script src="generate.js"></script>
+  </body>
 </html>
